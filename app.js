@@ -1,0 +1,207 @@
+/**
+ * Created by apetrov on 02.06.2017.
+ */
+/**
+ * Created by PhpStorm.
+ * Company: Appalachian Ltd.
+ * Developer: SETTER
+ * Suite: appalachi.ru
+ * Email: info@appalachi.ru
+ * Date: 01.06.2017
+ * Time: 22:55
+ */
+const http = require('http');
+const fs = require('fs');
+const Watcher = require('listener-dir');
+var request = require('request');
+const XlsxPopulate = require('xlsx-populate');
+
+
+// portal/DavWWWRoot/it/skd
+//fs.watch('Z:\\1.txt', (eventType, filename) => {
+//    console.log(`event type is: ${eventType}`);
+//    if (filename) {
+//        console.log(`filename provided: ${filename}`);
+//    } else {
+//        console.log('filename not provided');
+//    }
+//});
+//fs.watch('\\\\portal\\DavWWWRoot\\it\\skd\\'+data[4], (eventType, filename) => {
+//    console.log(`event type is: ${eventType}`);
+//    if (filename) {
+//        console.log(`filename provided: ${filename}`);
+//    } else {
+//        console.log('filename not provided');
+//    }
+//});
+
+const fileName = '1.txt';
+
+
+
+
+
+//var res='';
+//
+//
+//fs.open('./' + fileName, 'w', (err, fd) => {
+//    if (err) console.error(err);
+//
+//res = fd;
+//});
+//const defaults = {
+//    flags: 'r',
+//    encoding: null,
+//    fd: res,
+//    mode: 0o666,
+//    autoClose: true
+//};
+//var http = require('http');
+//var fs = require('fs');
+
+
+var myReadStream = fs.createReadStream(__dirname + '/1.txt', 'utf8');
+var myWriteStream = fs.createWriteStream(__dirname + '/2.txt');
+
+myReadStream.on('data', function(chunk) {
+    console.log('Получен новый объем данных: ');
+    myWriteStream.write(chunk);
+});
+
+
+
+var stream = new fs.ReadStream('Z:\\' + fileName);
+//var stream = new fs.ReadStream('Z:\\Landata 2017-05-30.xls', {encoding: 'utf-8'});
+
+//var dest = stream.pipe(fs.createWriteStream('./' + fileName));
+
+
+//var promise = new Promise((resolve, reject) => {
+//    dest.on('finish', resolve);
+//    source.on('error', reject);
+//    dest.on('error', reject);
+//}).catch(e => new Promise((_, reject) => {
+//    dest.end(() => {
+//        fs.unlink('doodle.png', () => reject(e));
+//    });
+//}));
+
+
+
+//sendFile(stream, dest);
+
+
+stream.on('readable', function () {
+    var data = stream.read();
+    if (data != null) console.log(data.length / 1000 + 'Kb');
+    //console.log(data);
+});
+
+
+stream.on('end', function () {
+    console.log("THE END");
+});
+
+/**
+ * Чтобы Node не упал ставим,обрабочик на ошибку.
+ */
+stream.on('error', function (err) {
+    if (err.code == 'ENOENT') {
+        console.log("Файл не найден");
+    } else {
+        console.error(err);
+    }
+});
+
+function sendFile(file, res) {
+    file.pipe(res);
+
+    file.on('error', function (err) {
+        res.statusCode = 500;
+        res.end("Server Error");
+        console.error(err);
+    });
+
+    file
+        .on('open', function () {
+            console.log("open");
+        })
+        .on('close', function () {
+            console.log("close");
+        });
+
+    res.on('close', function () {
+        file.destroy();
+    });
+}
+
+
+//XlsxPopulate.fromFileAsync(data).then(function (workbook) {
+//        "use strict";
+//        /**
+//         * Матрица вся книга.
+//         * @type {Range|undefined}
+//         */
+//        const matrix = workbook.sheet(0).usedRange();
+//        sails.log(matrix);
+//    },
+//    function (reject) {
+//        sails.log('Prommissss 45 ' + error);
+//    });
+
+
+fs.readdir('Z:\\', {encoding: 'utf-8'}, function (err, data) {
+    if (err) {
+        console.log(err);
+    } else {
+        //console.log(data[4]);
+
+        console.log(data);
+    }
+});
+
+
+//var smb2Client = new SMB2({
+//    share:'\\\\portal\\DavWWWRoot\\it\\skd\\'
+//    , domain:'landata'
+//    , username:'apetrov@portal'
+//    , password:'Tel-4211817'
+//});
+////smb2Client.exists('skd\\', function (err, exists) {
+////    if (err) throw err;
+////    console.log(exists ? "it's there" : "it's not there!");
+////});
+//smb2Client.readdir('Windows\\System32', function(err, files){
+//    if(err) throw err;
+//    console.log(files);
+//});
+
+//smb2Client.readdir('skd', function(err, files){
+//    if(err) throw err;
+//    console.log(files);
+//});
+
+
+var watch = 'Z:\\';
+//var watch = 'watch';
+// После определения класса Watcher можно воспользоваться им, создав объект Watcher
+var watcher = new Watcher(watch, './done');
+
+/**
+ * В только что созданном объекте Watcher можно использовать метод on,
+ * унаследованный от класса генератора событий, чтобы создать
+ * логику обработки каждого файла,
+ */
+watcher.on('process', function process(file) {
+    var watchFile = this.watchDir + '/' + file;
+    var processedFile = this.processedDir + '/' + file.toLowerCase();
+    fs.rename(watchFile, processedFile, (err)=> {
+        if (err) throw err;
+    });
+});
+
+/**
+ * Теперь, после создания всего необходимого кода, инициировать мониторинг
+ * папки можно с помощью такой команды:
+ */
+watcher.start();
