@@ -11,15 +11,16 @@
  * Time: 22:55
  */
 
-function SKD() {
-    let name = this.name;
-    let dateCreate = this.dateCreate;
-    let startPeriod = this.startPeriod;
-    let endPeriod = this.endPeriod;
-    let headerOneRow = this.headerOneRow;
-    let headerTwoRow = this.headerTwoRow;
-    let data = [];
-
+function SKD(sourceReportSkd, targetReportSkd) {
+    this.name = {};
+    this.dateCreate = new Date(0, 0, 0);
+    this.startPeriod = new Date(0, 0, 0);
+    this.endPeriod = new Date(0, 0, 0);
+    this.headerOneRow = {};
+    this.headerTwoRow = {};
+    this.data = [];
+    this.sourceReportSkd = sourceReportSkd;
+    this.targetReportSkd = targetReportSkd;
 
 }
 SKD.prototype.checkedTypeFile = function () {
